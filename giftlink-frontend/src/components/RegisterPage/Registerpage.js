@@ -1,46 +1,52 @@
 import React, { useState } from 'react';
 import './RegisterPage.css';
-
-// Task 1: Import backend URL config
-import { urlConfig } from '../../config';
-
-// Task 2: Import AuthContext
-import { useAppContext } from '../../context/AuthContext';
-
-// Task 3: Import useNavigate
-import { useNavigate } from 'react-router-dom';
+import { urlConfig } from '../../config'; // Task 1: URL config
+import { useAppContext } from '../../context/AuthContext'; // Task 2: Auth context
+import { useNavigate } from 'react-router-dom'; // Task 3: Navigation
 
 function RegisterPage() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showerr, setShowerr] = useState(''); // Task 4: Error message
 
-    // Task 4: Error message state
-    const [showerr, setShowerr] = useState('');
-
-    // Task 5: Get navigate and setIsLoggedIn from context
     const navigate = useNavigate();
     const { setIsLoggedIn } = useAppContext();
 
     const handleRegister = async () => {
         try {
             const response = await fetch(`${urlConfig.backendUrl}/api/auth/register`, {
-                method: 'POST', // Task 6
+                method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json', // Task 7
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ // Task 8
+                body: JSON.stringify({
                     firstName,
                     lastName,
                     email,
-                    password
+                    password,
                 }),
             });
 
-            // Step 2 will handle the response
+            const json = await response.json(); // Task 1: Parse response
+
+            if (json.authtoken) {
+                // Task 2: Store user details
+                sessionStorage.setItem('auth-token', json.authtoken);
+                sessionStorage.setItem('name', firstName);
+                sessionStorage.setItem('email', json.email);
+
+                setIsLoggedIn(true); // Task 3
+                navigate('/app');    // Task 4
+            } else if (json.error) {
+                setShowerr(json.error); // Task 5
+            } else {
+                setShowerr('Registration failed. Please try again.'); // Fallback error
+            }
         } catch (e) {
             console.log("Error fetching details: " + e.message);
+            setShowerr('An unexpected error occurred.'); // Task 5
         }
     };
 
@@ -85,6 +91,7 @@ function RegisterPage() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                             />
+                            {/* Task 6: Show error if exists */}
                             {showerr && <div className="text-danger">{showerr}</div>}
                         </div>
 
