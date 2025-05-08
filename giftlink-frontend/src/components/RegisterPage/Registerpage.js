@@ -1,15 +1,47 @@
 import React, { useState } from 'react';
 import './RegisterPage.css';
 
+// Task 1: Import backend URL config
+import { urlConfig } from '../../config';
+
+// Task 2: Import AuthContext
+import { useAppContext } from '../../context/AuthContext';
+
+// Task 3: Import useNavigate
+import { useNavigate } from 'react-router-dom';
+
 function RegisterPage() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    // Task 4: Error message state
+    const [showerr, setShowerr] = useState('');
+
+    // Task 5: Get navigate and setIsLoggedIn from context
+    const navigate = useNavigate();
+    const { setIsLoggedIn } = useAppContext();
+
     const handleRegister = async () => {
-        console.log("Register invoked");
-        console.log({ firstName, lastName, email, password });
+        try {
+            const response = await fetch(`${urlConfig.backendUrl}/api/auth/register`, {
+                method: 'POST', // Task 6
+                headers: {
+                    'Content-Type': 'application/json', // Task 7
+                },
+                body: JSON.stringify({ // Task 8
+                    firstName,
+                    lastName,
+                    email,
+                    password
+                }),
+            });
+
+            // Step 2 will handle the response
+        } catch (e) {
+            console.log("Error fetching details: " + e.message);
+        }
     };
 
     return (
@@ -53,6 +85,7 @@ function RegisterPage() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                             />
+                            {showerr && <div className="text-danger">{showerr}</div>}
                         </div>
 
                         <div className="mb-3">
