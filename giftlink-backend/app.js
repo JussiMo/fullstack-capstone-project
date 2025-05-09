@@ -55,8 +55,8 @@ app.use((err, req, res, next) => {
 });
 
 app.get("/",(req,res)=>{
-    res.send("Inside the server")
-})
+    res.send("Inside the server");
+});
 
 app.listen(port, '0.0.0.0', () => {
     console.log(`Server running on port ${port}`);
